@@ -1,6 +1,6 @@
 import { Api, Table, StaticSite, StackContext, Cognito } from "sst/constructs";
 
-export function ExampleStack({ stack }: StackContext) {
+export function ExampleStack({ stack , app}: StackContext) {
   // Create the table
   const table = new Table(stack, "Counter", {
     fields: {
@@ -51,10 +51,11 @@ export function ExampleStack({ stack }: StackContext) {
 
   // Deploy our React app
   const site = new StaticSite(stack, "ReactSite", {
-    path: "packages/frontend",
+    path: "packages/vite/vite-project",
     buildCommand: "npm run build",
-    buildOutput: "build",
+    buildOutput: "dist",
     environment: {
+      REACT_APP_API_NAME: app.stageName + "-" + app.name + "-" + api.id,
       REACT_APP_API_URL: api.url,
       REACT_APP_USER_POOL_ID: auth.userPoolId,
       REACT_APP_IDENTITY_POOL_ID: auth.cognitoIdentityPoolId || "",
@@ -67,5 +68,6 @@ export function ExampleStack({ stack }: StackContext) {
   stack.addOutputs({
     SiteUrl: site.url,
     ApiEndpoint: api.url,
+    ApiName: app.stageName + "-" + app.name + "-" + api.id
   });
 }
