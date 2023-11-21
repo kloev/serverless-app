@@ -16,12 +16,6 @@ function App() {
       .then(() => setCount);
   }
 
-  // function onClick() {
-  //   fetch(import.meta.env.VITE_APP_API_URL)
-  //     .then((response) => response.text())
-  //     .then(setMessage);
-  // }
-
   return (
     <>
       <h1>Clicker</h1>
