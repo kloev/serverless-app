@@ -26,8 +26,7 @@ export function ExampleStack({ stack }: StackContext) {
       function: {
         // Bind the table name to our API
         bind: [table, formTable],
-      },
-      authorizer: "iam"
+      }
     },
     routes: {
       "POST /": {

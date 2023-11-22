@@ -7,7 +7,9 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 export const main: APIGatewayProxyHandlerV2 = async (event) => {
 
+  console.count();
   const data = JSON.parse(event?.body || '');
+  console.count();
 
   const params = {
     TableName: Table.FormTable.tableName,
@@ -19,6 +21,7 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
         createdAt: Date.now(), 
     },
   };
+  console.count();
 
   await dynamoDb.put(params).promise();
 

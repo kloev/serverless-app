@@ -14,12 +14,15 @@ export const AddContact = ({ onContactAdd }: AddContactProps) => {
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!values.name || !values.birth|| !values.hobby) return;
-    await fetch(`${process.env.REACT_APP_API_URL}/form`, {
+    const blka = await fetch(`${process.env.REACT_APP_API_URL}/form`, {
       method: "POST",
       body: JSON.stringify(values),
+      headers: {
+        'content-type': "application/json"
+      }
     });
     onContactAdd();
-    setValues({});
+    setValues(blka.json());
   };
 
   return (
