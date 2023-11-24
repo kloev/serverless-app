@@ -31,7 +31,6 @@ export const Contacts = () => {
   return (
     <div>
       <AddContact onContactAdd={loadContactList} />
-
       <div style={{ marginTop: 20 }}>
         {!isLoading ? (
           contactList.length ? (

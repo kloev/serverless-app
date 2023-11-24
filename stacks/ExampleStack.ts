@@ -1,4 +1,4 @@
-import { Api, Table, StaticSite, StackContext, Cognito } from "sst/constructs";
+import { Api, Table, StaticSite, StackContext, Cognito, Function, Bucket } from "sst/constructs";
 
 export function ExampleStack({ stack }: StackContext) {
   // Create the table
@@ -18,35 +18,53 @@ export function ExampleStack({ stack }: StackContext) {
       hobby: "string"
     },
     primaryIndex: { partitionKey: "id", sortKey: "name" },
-  })
+  });
+
+  const northwindTable = new Table(stack, "NorthwindTable", {
+    fields: {
+      employeeID: "number",
+      lastName: "string",
+      firstName: "string",
+      title: "string",
+      titleOfCourtesy: "string",
+      birthDate: "string", // Hier könnte auch ein spezifischer Datentyp für Datum (z.B., Date) verwendet werden
+      hireDate: "string", // Ebenfalls hier könnte auch ein spezifischer Datentyp für Datum (z.B., Date) verwendet werden
+      address: "string",
+      city: "string",
+      region: "string",
+      postalCode: "string",
+      country: "string",
+      homePhone: "string",
+      extension: "string",
+      photo: "binary", // Annahme: Binärdaten für ein Bild
+      notes: "string",
+      reportsTo: "number", // Annahme: Mitarbeiterberichtslinie, könnte auch einen anderen Datentyp haben
+      photoPath: "string",
+    },
+    primaryIndex: { partitionKey: "employeeID", sortKey: "lastName" }
+  });
+
+//  const employeesBucket = new Bucket(stack, "employee-bucket", {
+//    name: "employee-csv-bucket"
+
+//  });
 
   // Create the HTTP API
   const api = new Api(stack, "Api", {
     defaults: {
       function: {
         // Bind the table name to our API
-        bind: [table, formTable],
+        bind: [table, formTable, northwindTable],
       }
     },
     routes: {
-      "POST /": {
-        function: "packages/functions/src/counter.main",
-        authorizer: "none"
-      },
-      "POST /form": "packages/functions/src/post.main",
-      "GET /form": "packages/functions/src/get.main",
-      "DELETE /form/{id}": "packages/functions/src/delete.main",
+      "POST /": "packages/functions/src/counter.main",
+      "POST /form": "packages/functions/src/postContact.main",
+      "GET /form": "packages/functions/src/getContact.main",
+      "DELETE /form/{id}": "packages/functions/src/deleteContact.main",
+      "GET /northwind" : "packages/functions/src/getEmployees.main"
     },
   });
-
-  // Create auth provider
-  const auth = new Cognito(stack, "Auth", {
-    login: ["email"],
-
-  });
-
-  // Allow authenticated users invoke API
-  auth.attachPermissionsForAuthUsers(stack, [api]);
 
   // Deploy our React app
   const site = new StaticSite(stack, "ReactSite", {
@@ -55,10 +73,8 @@ export function ExampleStack({ stack }: StackContext) {
     buildOutput: "build",
     environment: {
       REACT_APP_API_URL: api.url,
-      REACT_APP_USER_POOL_ID: auth.userPoolId,
-      REACT_APP_IDENTITY_POOL_ID: auth.cognitoIdentityPoolId || "",
-      REACT_APP_USER_POOL_CLIENT_ID: auth.userPoolClientId,
-      REACT_APP_REGION: stack.region
+      REACT_APP_REGION: stack.region,
+      // NORTHWIND_TABLE_NAME: northwindTable.tableName
     },
   });
 
